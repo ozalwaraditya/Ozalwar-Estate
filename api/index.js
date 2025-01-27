@@ -3,12 +3,17 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import authRouter from './router/authRouter.js'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(cors()); 
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true 
+  }));
+app.use(cookieParser());
 
 const connectDb = async () => {
     mongoose.connect(process.env.MONGO_URI).then(()=>{
