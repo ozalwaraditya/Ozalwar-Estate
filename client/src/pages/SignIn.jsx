@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { signInFailure, signInStart, signInSuccess } from '../redux/user/UserSlice.js';
+import { useDispatch } from 'react-redux';
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // Handle input change
   const handleChange = (e) => {
@@ -23,6 +26,7 @@ const SignIn = () => {
     setError(null);
 
     try {
+      dispatch(signInStart());
       const { data } = await axios.post(
         'http://localhost:4000/api/v1/auth/signin', // Backend endpoint
         formData,
@@ -31,6 +35,7 @@ const SignIn = () => {
 
       console.log('Response Data:', data);
 
+      dispatch(signInSuccess(data));
 
       console.log('User signed in successfully! Redirecting...');
       setTimeout(() => {
@@ -38,6 +43,7 @@ const SignIn = () => {
       }, 500);
       
       if (!data.success) {
+        dispatch(signInFailure(error.message));
         setError(data.message);
         return;
       }
