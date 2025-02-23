@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRouter from './router/authRouter.js';
 // import listingRouter from './routes/listing.route.js';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 // import path from 'path';
 dotenv.config();
 
@@ -21,7 +22,10 @@ mongoose
 const app = express();
 
 app.use(express.json());
-
+app.use(cors({
+    origin: 'http://localhost:5173' ,
+    credentials : true
+  }));
 app.use(cookieParser());
 
 app.listen(3000, () => {
