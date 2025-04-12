@@ -3,6 +3,12 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import AuthRouter from './router/AuthRouter.js'
+import cors from 'cors'
+
+const corsOptions = {
+  origin: 'http://localhost:5173',  
+  credentials: true,
+};
 
 dotenv.config();
 const app = express();
@@ -21,7 +27,7 @@ const connectDb = async () => {
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(cors(corsOptions));
 
 app.listen(process.env.PORT, () => {
     console.log("Server is running on port: " + process.env.PORT);
