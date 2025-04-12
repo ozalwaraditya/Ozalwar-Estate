@@ -5,6 +5,8 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { signInFailure, signInStart, signInSuccess } from '../redux/user/userSlice';
 import { url } from '../utils/constants'; // e.g., export const url = 'http://localhost:5000';
+import OAuth from '../components/OAuth';
+import {toast} from 'react-hot-toast';
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -31,17 +33,19 @@ export default function SignIn() {
         withCredentials: true,
       });
 
-      const data = res.data;
+      const data = await res.data;
 
       if (data.success === false) {
         dispatch(signInFailure(data.message));
         return;
       }
 
+      toast.success("Sign in successful")
       dispatch(signInSuccess(data.user));
       navigate('/');
     } catch (error) {
       console.error('Error during sign-in:', error);
+      toast.error("Sign in failed!!")
       dispatch(signInFailure(error.response?.data?.message || 'Something went wrong'));
     }
   };
@@ -73,6 +77,7 @@ export default function SignIn() {
         >
           {loading ? 'Signing In...' : 'Sign In'}
         </button>
+        <OAuth/>
       </form>
 
       <div className='flex gap-2 mt-5'>

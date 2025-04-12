@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { url } from '../utils/constants';
 import axios from 'axios';
+import OAuth from '../components/OAuth';
+import {toast} from 'react-hot-toast'
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
@@ -38,9 +40,11 @@ const SignUp = () => {
 
       setLoading(false);
       setError(null);
+      toast.success("Signed in successfully!");
       navigate('/sign-in'); // Navigate after successful sign-up
     } catch (error) {
       setLoading(false);
+      toast.error("Sign-up failed")
       setError(error.response?.data?.message || error.message); // Handle any error message returned
     }
   };
@@ -80,6 +84,7 @@ const SignUp = () => {
         >
           {loading ? 'Loading...' : 'Sign Up'}
         </button>
+        <OAuth/>
       </form>
       <div className='flex gap-2 mt-5'>
         <p>Have an account?</p>

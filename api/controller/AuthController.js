@@ -92,3 +92,75 @@ export const signout = (req, res, next) => {
         return next(ErrorHandler(500, "Error during sign-out: " + error.message));
     }
 };
+
+export const google = async (req, res, next) => {
+    try {
+        const existingUser = await User.findOne({ email: req.body.email });
+
+        if (existingUser) {
+            const token = jwt.sign(
+                { userId: existingUser._id, email: existingUser.email },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: '1h' }
+            );
+
+            const { password, ...userData } = existingUser._doc;
+
+            res.cookie('access_token', token, {
+                httpOnly: true,
+                maxAge: 3600000,
+                sameSite: 'strict'
+            });
+
+            return res.status(200).json({
+                message: "User signed in successfully via Google",
+                token,
+                user: userData
+            });
+        } else {
+            // Generate random password and hash it
+            const randomPassword = Math.random().toString(36).slice(-8);
+            const hashedPassword = bcrypt.hashSync(randomPassword, 10);
+
+            let baseUsername = req.body.email.split('@')[0];
+            let finalUsername = baseUsername;
+            let counter = 1;
+
+            while (await User.findOne({ username: finalUsername })) {
+                finalUsername = `${baseUsername}${counter}`;
+                counter++;
+            }
+
+            const newUser = new User({
+                username: finalUsername,
+                email: req.body.email,
+                password: hashedPassword,
+            });
+
+            await newUser.save();
+
+            const token = jwt.sign(
+                { userId: newUser._id, email: newUser.email },
+                process.env.JWT_SECRET_KEY,
+                { expiresIn: '1h' }
+            );
+
+            const { password, ...userData } = newUser._doc;
+
+            res.cookie('access_token', token, {
+                httpOnly: true,
+                maxAge: 3600000,
+                sameSite: 'strict'
+            });
+
+            return res.status(201).json({
+                message: "User signed up and signed in via Google",
+                token,
+                user: userData
+            });
+        }
+
+    } catch (error) {
+        return next(ErrorHandler(500, "Error during Google auth: " + error.message));
+    }
+};
