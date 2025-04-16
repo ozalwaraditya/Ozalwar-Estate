@@ -19,7 +19,7 @@ const SignUp = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent form submission from reloading the page
+    e.preventDefault(); 
     setLoading(true);
     try {
       const res = await axios.post(`${url}/api/auth/sign-up`, formData, {
@@ -41,11 +41,11 @@ const SignUp = () => {
       setLoading(false);
       setError(null);
       toast.success("Signed in successfully!");
-      navigate('/sign-in'); // Navigate after successful sign-up
+      navigate('/sign-in'); 
     } catch (error) {
       setLoading(false);
       toast.error("Sign-up failed")
-      setError(error.response?.data?.message || error.message); // Handle any error message returned
+      setError(error.response?.data?.message || error.message); 
     }
   };
 
