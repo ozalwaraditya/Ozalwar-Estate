@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import AuthRouter from './router/AuthRouter.js'
 import UserRouter from './router/UserRouter.js'
+import ListingRouter from './router/ListingRouter.js'
 import cors from 'cors'
 
 const corsOptions = {
@@ -37,6 +38,7 @@ app.listen(process.env.PORT, () => {
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
+app.use('/api/listing', ListingRouter);
 
 
 app.use((err, req, res, next) => {
