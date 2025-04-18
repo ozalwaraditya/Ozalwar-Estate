@@ -1,20 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { getDownloadURL,  getStorage,  ref,  uploadBytesResumable,} from "firebase/storage";
 import { app } from "../firebase";
-import {
-  updateUserFailure,
-  updateUserStart,
-  updateUserSuccess,
-} from "../redux/user/userSlice";
+import {  deleteUserFailure,  deleteUserStart,  deleteUserSuccess,  updateUserFailure,  updateUserStart,  updateUserSuccess, signOutUserFailure, signOutUserSuccess, signOutUserStart} from "../redux/user/userSlice";
 import axios from "axios";
 import { url } from "../utils/constants.js";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const fileRef = useRef(null);
@@ -25,6 +17,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (file) {
@@ -57,6 +50,42 @@ const Profile = () => {
         });
       }
     );
+  };
+
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(deleteUserStart());
+  
+      const response = await axios.delete(`${url}/api/user/delete/${currentUser._id}`, {
+        withCredentials: true,
+      });
+  
+      dispatch(deleteUserSuccess(response.data.message));
+      toast.success("User deleted successfully");
+  
+      navigate('/sign-in')
+  
+    } catch (error) {
+      dispatch(deleteUserFailure(error.response?.data?.message || error.message));
+      toast.error(error.response?.data?.message || "Failed to delete user");
+    }
+  };
+  
+  const handleSignOut = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(signOutUserStart());
+  
+      const response = await axios.get(`${url}/api/auth/sign-out`, null, {
+        withCredentials: true,
+      });
+  
+      dispatch(signOutUserSuccess());
+      navigate("/sign-in");
+    } catch (error) {
+      dispatch(signOutUserFailure(error.message));
+    }
   };
 
   const handleChange = (e) => {
@@ -172,8 +201,8 @@ const Profile = () => {
       </form>
 
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete account</span>
-        <span className="text-red-700 cursor-pointer">Sign out</span>
+        <span onClick={handleDelete} className="text-red-700 cursor-pointer">Delete account</span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign out</span>
       </div>
 
       <button className="text-green-700 w-full mt-4">Show Listings</button>
