@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { ErrorHandler } from '../utils/ErrorHandler.js'; 
+import { ErrorHandler } from '../utils/ErrorHandler.js';
 import User from '../models/User.Model.js';
 
-// 🔒 Generate JWT
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -16,13 +15,11 @@ const generateToken = (user) => {
   );
 };
 
-// 📤 Format User Response
 const formatUserResponse = (user) => {
   const { password, ...userData } = user._doc;
   return userData;
 };
 
-// 📝 SIGN UP
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
 
@@ -40,13 +37,12 @@ export const signup = async (req, res, next) => {
 
     await newUser.save();
     const savedUser = await User.findById(newUser._id).select('-password');
-
     const token = generateToken(savedUser);
 
     res.cookie('access_token', token, {
       httpOnly: true,
       maxAge: 3600000,
-      sameSite: 'strict'
+      sameSite: 'strict',
     });
 
     res.status(201).json({
@@ -56,11 +52,10 @@ export const signup = async (req, res, next) => {
     });
 
   } catch (error) {
-    return next(ErrorHandler(500, "Error while signing up user: " + error.message));
+    return next(ErrorHandler(500, "Signup error: " + error.message));
   }
 };
 
-// 🔐 SIGN IN
 export const signin = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -77,62 +72,65 @@ export const signin = async (req, res, next) => {
     res.cookie('access_token', token, {
       httpOnly: true,
       maxAge: 3600000,
-      sameSite: 'strict'
+      sameSite: 'strict',
     });
 
     res.status(200).json({
       message: "User signed in successfully",
       token,
-      user: userData
+      user: userData,
     });
 
   } catch (error) {
-    return next(ErrorHandler(500, "Error during sign-in: " + error.message));
+    return next(ErrorHandler(500, "Signin error: " + error.message));
   }
 };
 
-// 🚪 SIGN OUT
-export const signout = (req, res, next) => {
-  try {
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      sameSite: 'strict',
-    });
-
-    res.status(200).json({
-      message: "User signed out successfully"
-    });
-  } catch (error) {
-    return next(ErrorHandler(500, "Error during sign-out: " + error.message));
-  }
+export const signout = (req, res) => {
+  res.clearCookie('access_token', {
+    httpOnly: true,
+    sameSite: 'strict',
+  });
+  res.status(200).json({ message: "User signed out successfully" });
 };
 
-// 🔑 GOOGLE AUTH
 export const google = async (req, res, next) => {
   try {
-    const existingUser = await User.findOne({ email: req.body.email });
+    const { email, avatar } = req.body;
 
-    if (existingUser) {
-      const token = generateToken(existingUser);
-      const userData = formatUserResponse(existingUser);
+    let user = await User.findOne({ email });
+
+    if (user) {
+      const token = jwt.sign(
+        {
+          userId: user._id,
+          email: user.email,
+          avatar: user.avatar || null,
+        },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: '1h' }
+      );
+
+      const { password, ...userData } = user._doc;
 
       res.cookie('access_token', token, {
         httpOnly: true,
         maxAge: 3600000,
-        sameSite: 'strict'
+        sameSite: 'strict',
       });
 
       return res.status(200).json({
-        message: "User signed in successfully via Google",
+        message: "User signed in via Google",
         token,
-        user: userData
+        user: userData,
       });
     }
 
+    // New user registration
     const randomPassword = Math.random().toString(36).slice(-8);
     const hashedPassword = bcrypt.hashSync(randomPassword, 10);
 
-    let baseUsername = req.body.email.split('@')[0];
+    let baseUsername = email.split('@')[0];
     let finalUsername = baseUsername;
     let counter = 1;
 
@@ -142,28 +140,38 @@ export const google = async (req, res, next) => {
 
     const newUser = new User({
       username: finalUsername,
-      email: req.body.email,
+      email,
       password: hashedPassword,
-      avatar: req.body.avatar || null, // Optional avatar from Google
+      avatar: avatar || null,
     });
 
     await newUser.save();
-    const token = generateToken(newUser);
-    const userData = formatUserResponse(newUser);
+
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        email: newUser.email,
+        avatar: newUser.avatar || null,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: '1h' }
+    );
+
+    const { password, ...userData } = newUser._doc;
 
     res.cookie('access_token', token, {
       httpOnly: true,
       maxAge: 3600000,
-      sameSite: 'strict'
+      sameSite: 'strict',
     });
 
     return res.status(201).json({
-      message: "User signed up and signed in via Google",
+      message: "User registered and signed in via Google",
       token,
-      user: userData
+      user: userData,
     });
 
   } catch (error) {
-    return next(ErrorHandler(500, "Error during Google auth: " + error.message));
+    return next(ErrorHandler(500, "Google auth error: " + error.message));
   }
 };

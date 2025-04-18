@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import AuthRouter from './router/AuthRouter.js'
+import UserRouter from './router/UserRouter.js'
 import cors from 'cors'
 
 const corsOptions = {
@@ -35,6 +36,7 @@ app.listen(process.env.PORT, () => {
 })
 
 app.use('/api/auth', AuthRouter);
+app.use('/api/user', UserRouter);
 
 
 app.use((err, req, res, next) => {
