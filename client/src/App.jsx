@@ -7,7 +7,7 @@ import SignIn from './pages/SignIn';
 import Header from './components/Header';
 import { Toaster } from 'react-hot-toast';
 import PrivateRouter from './components/PrivateRouter';
-import CreateListing from './components/CreateListing';
+import CreateListing from './pages/CreateListing';
 
 const App = () => {
   return (

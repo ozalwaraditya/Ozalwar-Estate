@@ -1,6 +1,7 @@
 import { ErrorHandler } from "../utils/ErrorHandler.js";
 import bcrypt from 'bcryptjs';
 import User from '../models/User.Model.js';
+import Listing from "../models/Listing.Model.js";
 
 export const UpdateUser = async (req, res, next) => {
   if (req.user.id !== req.params.id)
@@ -52,5 +53,18 @@ export const DeleteUser = async (req, res, next) => {
     
   } catch (error) {
     next(error);
+  }
+};
+
+export const GetUserListings = async (req, res, next) => {
+  if (req.user.id !== req.params.id) {
+    return next(ErrorHandler(403, "You can only access your own listings"));
+  }
+
+  try {
+    const listings = await Listing.find({ userRef: req.params.id });
+    return res.status(200).json(listings);
+  } catch (error) {
+    return next(ErrorHandler(500, "Failed to fetch listings"));
   }
 };
