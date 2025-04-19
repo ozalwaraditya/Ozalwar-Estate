@@ -68,3 +68,15 @@ export const GetUserListings = async (req, res, next) => {
     return next(ErrorHandler(500, "Failed to fetch listings"));
   }
 };
+
+export const GetUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+}

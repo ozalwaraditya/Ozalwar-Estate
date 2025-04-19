@@ -9,6 +9,7 @@ import { Toaster } from 'react-hot-toast';
 import PrivateRouter from './components/PrivateRouter';
 import CreateListing from './pages/CreateListing';
 import EditListing from './pages/EditListing';
+import Listing from './pages/Listing';
 
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
           <Route path='/about' element={<About/>}/>
           <Route path='/sign-up' element={<SignUp/>}/>
           <Route path='/sign-in' element={<SignIn/>}/>
+          <Route path='/listing/:listingId' element={<Listing/>}/>
           <Route element={<PrivateRouter />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/create-listing" element={<CreateListing/>} />
