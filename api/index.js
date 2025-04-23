@@ -15,6 +15,10 @@ const corsOptions = {
 dotenv.config();
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Server is working');
+});
+
 // Database connection functions
 const connectDb = async () => {
     await mongoose.connect(process.env.MONGO_URL)
