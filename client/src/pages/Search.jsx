@@ -93,6 +93,11 @@ const Search = () => {
     navigate(`/search?${searchParams.toString()}`);
   };
 
+  // Handle card click to navigate to listing details
+  const handleCardClick = (listingId) => {
+    navigate(`/listing/${listingId}`);
+  };
+
   return (
     <div className="flex flex-col md:flex-row">
       {/* Sidebar */}
@@ -193,7 +198,11 @@ const Search = () => {
           {loading && <p>Loading...</p>}
           {!loading && (!Array.isArray(listings) || listings.length === 0) && <p>No listings found.</p>}
           {!loading && Array.isArray(listings) && listings.map((listing) => (
-            <div key={listing._id} className="border rounded-lg p-4 shadow w-full md:w-80">
+            <div
+              key={listing._id}
+              className="border rounded-lg p-4 shadow w-full md:w-80 transition-all duration-300 hover:shadow-lg cursor-pointer"
+              onClick={() => handleCardClick(listing._id)} // On card click, navigate to the listing details page
+            >
               <img
                 src={listing.imageUrls?.[0]}
                 alt={listing.name}
