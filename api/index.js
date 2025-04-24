@@ -14,7 +14,7 @@ const app = express();
 const corsOptions = {
   origin: [
     'http://localhost:5173',
-    'https://your-frontend.vercel.app' // Replace with your deployed frontend URL
+    'https://ozalwarestate.vercel.app/'
   ],
   credentials: true,
 };
@@ -30,12 +30,6 @@ app.get('/', (req, res) => {
 app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/listing', ListingRouter);
-
-
-app.listen(process.env.PORT, () => {
-  console.log("Server is running on port: " + process.env.PORT);
-  connectDb();
-})
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
