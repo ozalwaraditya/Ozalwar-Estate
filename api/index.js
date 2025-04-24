@@ -9,13 +9,12 @@ import UserRouter from './router/UserRouter.js';
 import ListingRouter from './router/ListingRouter.js';
 
 dotenv.config();
-
 const app = express();
 
 const corsOptions = {
   origin: [
     'http://localhost:5173',
-    'https://ozalwarestate.vercel.app'
+    'https://your-frontend.vercel.app' // Replace with your deployed frontend URL
   ],
   credentials: true,
 };
@@ -25,12 +24,18 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
-  res.send('Server is working!');
+  res.send('Server is working');
 });
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/user', UserRouter);
 app.use('/api/listing', ListingRouter);
+
+
+app.listen(process.env.PORT, () => {
+  console.log("Server is running on port: " + process.env.PORT);
+  connectDb();
+})
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -45,9 +50,9 @@ app.use((err, req, res, next) => {
 const connectDb = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
-    console.log('Connected to MongoDB');
+    console.log('Connected to DB!!');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.log('Error: ' + error);
   }
 };
 
