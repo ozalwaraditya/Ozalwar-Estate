@@ -9,6 +9,7 @@ import UserRouter from './router/UserRouter.js';
 import ListingRouter from './router/ListingRouter.js';
 
 dotenv.config();
+
 const app = express();
 
 const corsOptions = {
@@ -18,8 +19,8 @@ const corsOptions = {
   ],
   credentials: true,
 };
-app.use(cors(corsOptions));
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -44,9 +45,9 @@ app.use((err, req, res, next) => {
 const connectDb = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
-    console.log('✅ Connected to MongoDB');
+    console.log('Connected to MongoDB');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('MongoDB connection error:', error);
   }
 };
 
